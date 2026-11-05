@@ -1,0 +1,18 @@
+{
+  "topic": "Why the minimum payment on a credit card is a trap",
+  "scenes": [
+    {"say": "Paying the minimum is exactly what the bank wants.",
+     "visual": {"kind": "hook", "line1": "THE MINIMUM", "line2": "PAYMENT", "accent": "IS A TRAP"}},
+    {"say": "Say you owe three thousand dollars at twenty-four percent.",
+     "visual": {"kind": "big_number", "label": "Example card balance", "value": "$3,000", "sub": "24% APR"}},
+    {"say": "Pay only the minimum, and it takes over a decade to clear.",
+     "visual": {"kind": "compare", "left_title": "Minimum only", "left": "10+ years", "right_title": "$150 a month", "right": "~2 years", "winner": "right"}},
+    {"say": "Most of each payment goes to interest, not your debt.",
+     "visual": {"kind": "bars", "items": [{"label": "Interest", "value": 67, "note": "Bank keeps it"}, {"label": "Your debt", "value": 33, "note": "Actually paid off"}]}},
+    {"say": "The fix: pay a fixed amount every month, set it on autopay, and attack the highest rate first.",
+     "visual": {"kind": "list", "title": "The fix", "items": ["Pick a fixed amount", "Turn on autopay", "Highest rate first"]}},
+    {"say": "Follow, so the bank stops winning.",
+     "visual": {"kind": "cta", "big": "Follow", "small": "One money trick a day"}}
+  ],
+  "caption": "The bank designed that number for you. Here's how to flip it.\n#moneytips #personalfinance #creditcard #debtfree #budgeting"
+}
