@@ -1,0 +1,70 @@
+name: Money Decoded autopilot
+
+on:
+  schedule:
+    # Times are UTC. 16:47 UTC = 11:47 New York / 17:47 Tunis
+    #                00:23 UTC = 19:23 New York / 01:23 Tunis
+    - cron: "47 16 * * *"
+    - cron: "23 0 * * *"
+  workflow_dispatch:        # "Run workflow" button for a manual post
+    inputs:
+      post:
+        description: "Post to Facebook? (false = render only)"
+        default: "true"
+
+permissions:
+  contents: write           # lets the run save history.json back to the repo
+
+concurrency:
+  group: autopost
+  cancel-in-progress: false
+
+jobs:
+  reel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install -r requirements.txt
+
+      - name: Make and post a reel
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          POST_MODE: ${{ vars.POST_MODE || 'publish' }}
+          GEMINI_MODELS: ${{ vars.GEMINI_MODELS || 'gemini-3.8-flash,gemini-3.6-flash,gemini-3.5-flash-lite' }}
+          VOICE: ${{ vars.VOICE || 'en-US-AndrewMultilingualNeural' }}
+          X264_PRESET: medium
+        run: |
+          if [ "${{ github.event.inputs.post }}" = "false" ]; then
+            python run.py --no-post
+          else
+            python run.py
+          fi
+
+      - name: Keep the video for 7 days (download from the run page)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reel-${{ github.run_number }}
+          path: output/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Save history (also keeps the schedule active)
+        run: |
+          git config user.name "md-autopilot"
+          git config user.email "md-autopilot@users.noreply.github.com"
+          git add history.json
+          git diff --cached --quiet || git commit -m "Posted reel ${{ github.run_number }}"
+          git push
